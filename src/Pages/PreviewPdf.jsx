@@ -16,7 +16,7 @@ const PreviewPdf = () => {
     let { id } = useParams();
     const location = useLocation();
     let { state } = location
-    console.log('link', state)
+    console.log('link, state', state, location)
     const navigator = useNavigate()
 
     let file = state.split('/')

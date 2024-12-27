@@ -139,6 +139,20 @@ const decryptFile = (inputFile, outputFile) => {
     });
 };
 
+const decryptFilePdf = (inputFile, outputFile) => {
+  const decipher = crypto.createDecipher('aes-256-cbc', encryptionKey);
+  const input = fs.createReadStream(inputFile);
+  const output = fs.createWriteStream(outputFile);
+
+  input.pipe(decipher).pipe(output);
+
+  output.on('finish', () => {
+      win.webContents.send('getDecrypt-pdf', outputFile)
+    console.log(`File decrypted and saved to ${outputFile}`);
+  });
+};
+
+
 
   
 
@@ -373,6 +387,18 @@ app.whenReady().then(() => {
         console.log('filename :>> ', filename,  `${tempFolderPath}/${filename}`);
         decryptFile(`${encryptFolderPath}/${filename}`, `${tempFolderPath}/${formatFileName}`);
     })
+
+
+
+    ipcMain.on('decrypt-pdf', (event, data)=> {
+      console.log('-------------------DECRYPT decrypt pdf:', data);
+      let formatFileName = data.split('/')[1];
+      let filename = `${formatFileName}.enc`
+      
+
+      console.log('filename :>> ', filename,  `${tempFolderPath}/${filename}`);
+      decryptFilePdf(`${encryptFolderPath}/${filename}`, `${tempFolderPath}/${formatFileName}`);
+  })
 
 
 

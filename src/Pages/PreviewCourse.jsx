@@ -8,7 +8,7 @@ import {
     AccordionPanel,Box,
     AccordionIcon,Spinner,
   } from '@chakra-ui/react'
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { singleCourse } from "../Services/CourseApi";
 
 
@@ -17,7 +17,6 @@ const PreviewCourse = () => {
     console.log('id', id)
     const [data, setData] = useState({});
     const navigator = useNavigate()
-
     const [refresh, setRefresh] = useState(false)
 
 
@@ -87,12 +86,40 @@ const PreviewCourse = () => {
         window.electronAPI.receiveData('download-complete', (data) => {
             setRefresh(!refresh)
         });
+ 
         
     },[refresh])
 
     const VideoItem = ({ link, number, downloaded = false, selected=false }) => { 
     
-        const onTap = ()=>{
+
+        const onTap = () => {
+            const videoKey = `video${number > 1 ? number - 1 : ''}`;  // video, video1, video2...
+            console.log(link);
+            
+            const handleVideo = (decryptedData) => {
+                // selectedVideo[videoKey] = decryptedData;
+                setPlayVideo(decryptedData);
+                // navigator('/'); 
+            };
+            
+            if (downloaded) {
+                console.log('------------------INTERCEPT URL VIDEO::-------------------');
+                window.electronAPI.sendData('decrypt', link);
+                window.electronAPI.receiveData('getDecrypt', (receivedData) => {
+                    console.log('getDecrypt!!! video', receivedData);
+                    handleVideo(receivedData);
+                });
+            } else {
+                // selectedVideo[videoKey] = link;
+                setPlayVideo(`https://mslbucket.s3.us-east-1.amazonaws.com/${link}`);
+            }
+        
+            // setSelectedVideo(selectedVideo);
+        };
+
+        
+        const onTaplater = ()=>{
              switch(number){ 
                  case 1:
                      console.log(link);
@@ -100,7 +127,7 @@ const PreviewCourse = () => {
                          console.log('------------------INTERCEPT URL VIDEO-------------------')
                          console.log('selectedVideo.video :>> ', link);
                          window.electronAPI.sendData('decrypt', link)
-                         window.electronAPI.receiveData('getDecrypt', (receivedData) => {
+                         window.electronAPI.receiveData('getDecrypt later', (receivedData) => {
                             console.log('getDecrypt', receivedData);
                              selectedVideo.video = receivedData
                              setPlayVideo(receivedData)
@@ -195,6 +222,7 @@ const PreviewCourse = () => {
                      <div className={'flex  space-x-1 items-center justify-between text-[12px] bg-gray-200 rounded'}>
                          <div
                              onClick={() => {
+                                console.log('video player')
                                 onTap()
                              }}
                              className="flex items-center space-x-1 h-full w-full p-3 rounded">
@@ -253,15 +281,17 @@ const PreviewCourse = () => {
                     
                     if (downloaded) {
                         console.log('------------------INTERCEPT URL PDF-------------------')
-                        window.electronAPI.sendData('decrypt', link)
-                        window.electronAPI.receiveData('getDecrypt', (receivedData) => {
-                           console.log('getDecrypt', receivedData);
+                        window.electronAPI.sendData('decrypt-pdf', link)
+                        window.electronAPI.receiveData('getDecrypt-pdf', (receivedData) => {
+                           console.log('getDecrypt pdf 1', receivedData);
                            selectedVideo.pdf = receivedData
-                            navigator(`/preview/pdf/${id}`, { state: receivedData });
+                            navigator(`/preview/pdf/${id}`, { state: receivedData, type:'pdf'  });
                          });
+                         console.log('~~DOWNLOADED...',number)
                     }
                     else {
-                        navigator(`/preview/pdf/${id}`, { state: link});
+                        console.log('NOT DOWNLOADED...',number)
+                        navigator(`/preview/pdf/${id}`, { state: link, type:'pdf' });
                         selectedVideo.pdf = link;
                     }
                     break;
@@ -271,13 +301,15 @@ const PreviewCourse = () => {
                         console.log('------------------INTERCEPT URL PDF-------------------')
                         window.electronAPI.sendData('decrypt', link)
                         window.electronAPI.receiveData('getDecrypt', (receivedData) => {
-                           console.log('getDecrypt', receivedData);
+                           console.log('getDecrypt pdf 2', receivedData);
                            selectedVideo.pdf1 = receivedData
-                            navigator(`/preview/pdf/${id}`, { state: receivedData });
+                            navigator(`/preview/pdf/${id}`, { state: receivedData, type:'pdf'  });
                          });
+                         console.log('~~DOWNLOADED...',number)
                     }
                     else {
-                        navigator(`/preview/pdf/${id}`, { state: link});
+                        console.log('NOT DOWNLOADED...',number)
+                        navigator(`/preview/pdf/${id}`, { state: link, type:'pdf' });
                         selectedVideo.pdf1 = link;
                     }
                     break;
@@ -287,13 +319,15 @@ const PreviewCourse = () => {
                         console.log('------------------INTERCEPT URL PDF-------------------')
                         window.electronAPI.sendData('decrypt', link)
                         window.electronAPI.receiveData('getDecrypt', (receivedData) => {
-                           console.log('getDecrypt', receivedData);
+                           console.log('getDecrypt pdf 3', receivedData);
                            selectedVideo.pdf2 = receivedData
-                            navigator(`/preview/pdf/${id}`, { state: receivedData });
+                            navigator(`/preview/pdf/${id}`, { state: receivedData, type:'pdf'  });
                          });
+                         console.log('~~DOWNLOADED...',number)
                     }
                     else {
-                        navigator(`/preview/pdf/${id}`, { state: link});
+                        console.log('NOT DOWNLOADED...',number)
+                        navigator(`/preview/pdf/${id}`, { state: link, type:'pdf' });
                         selectedVideo.pdf2 = link;
                     }
                     break;
@@ -303,13 +337,15 @@ const PreviewCourse = () => {
                         console.log('------------------INTERCEPT URL PDF-------------------')
                         window.electronAPI.sendData('decrypt', link)
                         window.electronAPI.receiveData('getDecrypt', (receivedData) => {
-                           console.log('getDecrypt', receivedData);
+                           console.log('getDecrypt pdf 4', receivedData);
                            selectedVideo.pdf3 = receivedData
-                            navigator(`/preview/pdf/${id}`, { state: receivedData });
+                            navigator(`/preview/pdf/${id}`, { state: receivedData , type:'pdf' });
                          });
+                         console.log('~~DOWNLOADED...',number)
                     }
                     else {
-                        navigator(`/preview/pdf/${id}`, { state: link});
+                        console.log('NOT DOWNLOADED...',number)
+                        navigator(`/preview/pdf/${id}`, { state: link, type:'pdf' });
                         selectedVideo.pdf3 = link;
                     }
                     break;
@@ -319,17 +355,20 @@ const PreviewCourse = () => {
                         console.log('------------------INTERCEPT URL PDF-------------------')
                         window.electronAPI.sendData('decrypt', link)
                         window.electronAPI.receiveData('getDecrypt', (receivedData) => {
-                           console.log('getDecrypt', receivedData);
+                           console.log('getDecrypt pdf 5', receivedData);
                            selectedVideo.pdf4 = receivedData
-                            navigator(`/preview/pdf/${id}`, { state: receivedData });
+                            navigator(`/preview/pdf/${id}`, { state: receivedData, type:'pdf' });
                          });
+                         console.log('~~DOWNLOADED...',number)
                     }
                     else {
-                        navigator(`/preview/pdf/${id}`, { state: link});
+                        console.log('NOT DOWNLOADED...',number)
+                        navigator(`/preview/pdf/${id}`, { state: link,  type:'pdf'});
                         selectedVideo.pdf4 = link;
                     }
                     break;
                 default:
+                    console.log('NOT DOWNLOADED...')
                     console.log('default')
                     break;
             }
